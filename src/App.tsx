@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowRight, Layout, Camera, Film, Globe, User, Palette, X, ExternalLink, Sparkles, Twitter, Linkedin, Github, Instagram } from "lucide-react";
+import { ArrowRight, Layout, Camera, Film, Globe, User, Palette, X, ExternalLink, Sparkles, Twitter, Linkedin, Github, Instagram, Info, ShieldCheck, Mail, Briefcase } from "lucide-react";
 import CreativeAgency from "./pages/CreativeAgency";
 import PhotographerPortfolio from "./pages/PhotographerPortfolio";
 import VideoProduction from "./pages/VideoProduction";
 import MediaAgency from "./pages/MediaAgency";
 import PersonalBrand from "./pages/PersonalBrand";
 import ArtStudio from "./pages/ArtStudio";
+import About from "./pages/About";
+import Admin from "./pages/Admin";
+import Contact from "./pages/Contact";
+import Services from "./pages/Services";
 import { cn } from "./lib/utils";
 
-type PageId = "home" | "agency" | "photo" | "video" | "media" | "brand" | "art";
+type PageId = "home" | "agency" | "photo" | "video" | "media" | "brand" | "art" | "about" | "admin" | "contact" | "services";
 
 const PAGES = [
   { id: "agency", name: "Creative Agency", icon: Layout, component: CreativeAgency, color: "bg-orange-500" },
@@ -18,6 +22,14 @@ const PAGES = [
   { id: "media", name: "MediaLab Studio", icon: Globe, component: MediaAgency, color: "bg-indigo-600" },
   { id: "brand", name: "Personal Brand", icon: User, component: PersonalBrand, color: "bg-pink-500" },
   { id: "art", name: "Art Studio", icon: Palette, component: ArtStudio, color: "bg-stone-900" },
+] as const;
+
+const GLOBAL_NAV = [
+  { id: "home", name: "Home", icon: Layout },
+  { id: "about", name: "About", icon: Info },
+  { id: "services", name: "Services", icon: Briefcase },
+  { id: "contact", name: "Contact", icon: Mail },
+  { id: "admin", name: "Admin", icon: ShieldCheck },
 ] as const;
 
 export default function App() {
@@ -29,10 +41,57 @@ export default function App() {
     window.scrollTo(0, 0);
   }, [currentPage]);
 
-  const ActivePage = PAGES.find((p) => p.id === currentPage)?.component;
+  const ActivePage = [
+    ...PAGES, 
+    { id: "about", component: About }, 
+    { id: "admin", component: Admin },
+    { id: "contact", component: Contact },
+    { id: "services", component: Services }
+  ].find((p) => p.id === currentPage)?.component;
 
   return (
     <div className="min-h-screen bg-white text-black font-sans overflow-x-hidden">
+      {/* Top Navigation Bar */}
+      <nav className="fixed top-0 left-0 right-0 z-[120] bg-white/80 backdrop-blur-xl border-b border-gray-100 px-8 py-6">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div 
+            onClick={() => setCurrentPage("home")}
+            className="flex items-center gap-2 cursor-pointer group"
+          >
+            <div className="bg-black text-white font-bold px-2 py-1 rounded group-hover:rotate-12 transition-transform">D</div>
+            <span className="text-xl font-bold tracking-tighter">STUDIO.</span>
+          </div>
+
+          <div className="hidden md:flex items-center gap-12">
+            {GLOBAL_NAV.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setCurrentPage(item.id as PageId)}
+                className={cn(
+                  "text-[10px] font-bold uppercase tracking-[0.3em] transition-all hover:text-orange-500 relative py-2",
+                  currentPage === item.id ? "text-orange-500" : "text-gray-400"
+                )}
+              >
+                {item.name}
+                {currentPage === item.id && (
+                  <motion.div
+                    layoutId="nav-underline"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500"
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setShowNav(true)}
+            className="p-3 bg-gray-50 rounded-2xl hover:bg-black hover:text-white transition-all"
+          >
+            <Layout size={20} />
+          </button>
+        </div>
+      </nav>
+
       {/* Global Navigation Overlay */}
       <AnimatePresence>
         {currentPage !== "home" && (
